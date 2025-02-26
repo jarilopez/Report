@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reporte Semanal - Por Gerente</title>
+  <title>Reporte Semanal</title>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
   <!-- Chart.js via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Estilos personalizados -->
+  <!-- Estilos BACKGROUND-->
   <style type="text/tailwindcss">
     :root {
       --primary-bg: #061137;
@@ -75,7 +75,7 @@
       @apply bg-[#1E3A7B]/40 font-semibold text-white;
     }
 
-    /* Contenedor de gráficos: altura flexible y sin margen extra */
+    /* Contenedor de gráficos */
     .chart-container {
       @apply w-full h-48 relative mt-2;
     }
@@ -88,7 +88,7 @@
   <div id="app" class="max-w-6xl mx-auto px-3 py-5">
     <!-- Título de la página -->
     <h1 class="text-3xl font-bold gradient-text mb-4">
-      Reporte Semanal - Por Gerente
+      Reporte Semanal
     </h1>
 
     <!-- Diseño en cuadrícula para las secciones -->
@@ -116,10 +116,10 @@
       <div class="metric-card">
         <h2 class="section-title">Distribución de Correos</h2>
         <p class="section-description">
-          Análisis de la distribución de correos por tipo y cuenta
+          Análisis de la distribución de correos por tipo y cuenta.
         </p>
         
-        <!-- Distribución por Usuario -->
+        <!-- Distribución Global -->
         <h3 class="text-lg font-medium text-[#6FB6F2] mt-4 mb-2">
           Distribución Global
         </h3>
@@ -136,14 +136,14 @@
         </div>
       </div>
 
-      <!-- Tiempo de Gestión (por Usuario) -->
-      <div class="metric-card">
-        <h2 class="section-title">Tiempo de Gestión (por Usuario)</h2>
+      <!-- Tiempo de Gestión (por Integrante) -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">Tiempo de Gestión (por Integrante)</h2>
         <p class="section-description">
-          Número promedio de correos manejados por cada usuario.
+          Horas promedio dedicadas a la gestión de cuentas y servicios, por cada miembro del equipo.
         </p>
         <div class="chart-container">
-          <canvas id="handlingTimeUserChart"></canvas>
+          <canvas id="handlingTimeTeamChart"></canvas>
         </div>
       </div>
 
@@ -151,21 +151,21 @@
       <div class="metric-card">
         <h2 class="section-title">Tiempo de Gestión (por Cuenta)</h2>
         <p class="section-description">
-          Tiempo promedio de resolución por cuenta.
+          Tiempo promedio de resolución por cada cuenta gestionada.
         </p>
         <div class="chart-container">
           <canvas id="handlingTimeAccountChart"></canvas>
         </div>
       </div>
 
-      <!-- Nuevas Ventas de Producto/Tasa (Gráfico de Barras) -->
-      <div class="metric-card xl:col-span-2">
-        <h2 class="section-title">Nuevas Ventas de Producto/Tasa</h2>
+      <!-- Volumen de Actividad por Empresa -->
+      <div class="metric-card">
+        <h2 class="section-title">Volumen de Actividad por Empresa</h2>
         <p class="section-description">
-          Indicador de cuántas propuestas se han realizado (por Usuario).
+          Gráfico de pastel que muestra la distribución del volumen de actividad (por cuenta).
         </p>
         <div class="chart-container">
-          <canvas id="newProductRateChart"></canvas>
+          <canvas id="activityVolumeChart"></canvas>
         </div>
       </div>
 
@@ -173,11 +173,11 @@
       <div class="metric-card">
         <h2 class="section-title">Cuentas Sin Propuestas</h2>
         <p class="section-description">
-          Empresas que no han recibido ninguna propuesta nueva.
+          Listado de cuentas asignadas al equipo que aún no han recibido ninguna propuesta.
         </p>
         <table>
           <tr>
-            <th>Empresa</th>
+            <th>Cuenta</th>
             <th>Estado</th>
           </tr>
           <tr v-for="(company, idx) in accountsWithoutProposals" :key="'noProposal-'+idx">
@@ -187,22 +187,11 @@
         </table>
       </div>
 
-      <!-- Volumen de Actividad por Empresa -->
-      <div class="metric-card">
-        <h2 class="section-title">Volumen de Actividad por Empresa</h2>
-        <p class="section-description">
-          Por Usuario: Gráfico de pastel que muestra la distribución del volumen de actividad.
-        </p>
-        <div class="chart-container">
-          <canvas id="activityVolumeChart"></canvas>
-        </div>
-      </div>
-
       <!-- Empresas Sin Asignar -->
       <div class="metric-card">
         <h2 class="section-title">Empresas Sin Asignar</h2>
         <p class="section-description">
-          Análisis de si existe actividad en empresas no asignadas a ningún usuario.
+          Análisis de la actividad en empresas que no están asignadas a ningún miembro del equipo.
         </p>
         <table>
           <tr>
@@ -216,15 +205,46 @@
         </table>
       </div>
 
-      <!-- Actividad de Usuario (Reuniones + Correos) -->
-      <div class="metric-card">
-        <h2 class="section-title">Actividad de Usuario</h2>
+      <!-- Actividad del Equipo (Reuniones + Correos) -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">Actividad del Equipo</h2>
         <p class="section-description">
-          Reuniones y Correos: Gráfico de barras que muestra el número de interacciones por usuario.
+          Reuniones y Correos: Gráfico de barras que muestra el número de interacciones por integrante.
         </p>
         <div class="chart-container">
-          <canvas id="userActivityChart"></canvas>
+          <canvas id="teamActivityChart"></canvas>
         </div>
+      </div>
+
+      <!-- Contestabilidad de Correos (Donut) -->
+      <div class="metric-card">
+        <h2 class="section-title">Contestabilidad de Correos</h2>
+        <p class="section-description">
+          Proporción de correos que han recibido respuesta vs. los que siguen sin contestar.
+        </p>
+        <div class="chart-container">
+          <canvas id="emailResponseChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Emails Pendientes de Respuesta -->
+      <div class="metric-card">
+        <h2 class="section-title">Emails Pendientes de Respuesta</h2>
+        <p class="section-description">
+          Listado de correos que llevan días en espera de respuesta.
+        </p>
+        <table>
+          <tr>
+            <th>Asunto</th>
+            <th>Remitente</th>
+            <th>Días en Espera</th>
+          </tr>
+          <tr v-for="(mail, idx) in pendingEmails" :key="'pending-'+idx">
+            <td>{{ mail.subject }}</td>
+            <td>{{ mail.from }}</td>
+            <td>{{ mail.daysWaiting }}</td>
+          </tr>
+        </table>
       </div>
 
       <!-- Resumen de Cuentas & Próximos Pasos (Ancho Completo) -->
@@ -248,6 +268,7 @@
           </tr>
         </table>
       </div>
+
     </div>
   </div>
 
@@ -255,43 +276,47 @@
     const app = Vue.createApp({
       data() {
         return {
-          // 1) Temas Relevantes
+          // Temas Relevantes
           hotTopics: [
             { Topic: "Precios", Mentions: 30 },
             { Topic: "Problemas Técnicos", Mentions: 25 },
             { Topic: "Características del Producto", Mentions: 20 },
             { Topic: "Facturación", Mentions: 18 },
-            { Topic: "Implementación", Mentions: 12 }
+            { Topic: "Implementación", Mentions: 12 },
+            { Topic: "Soporte al Cliente", Mentions: 15 },
+            { Topic: "Renovaciones", Mentions: 22 },
+            { Topic: "Integraciones", Mentions: 16 },
+            { Topic: "Capacitación", Mentions: 14 }
           ],
 
-          // 2) Datos de Ventas (10 Usuarios, nombres reales de Inglaterra)
-          salesData: [
-            { User: "Harriet Stone", ProposalsMade: 5 },
-            { User: "James Robinson", ProposalsMade: 8 },
-            { User: "Charlotte Pearson", ProposalsMade: 2 },
-            { User: "Arthur Thompson", ProposalsMade: 7 },
-            { User: "Lucy Johnson", ProposalsMade: 4 },
-            { User: "Daniel Carter", ProposalsMade: 0 },
-            { User: "Fiona Wood", ProposalsMade: 9 },
-            { User: "George Cole", ProposalsMade: 3 },
-            { User: "Emily Turner", ProposalsMade: 1 },
-            { User: "William Bailey", ProposalsMade: 6 }
+          // Datos del Equipo
+          teamData: [
+            { Integrante: "Harriet Stone", PropuestasRealizadas: 5 },
+            { Integrante: "James Robinson", PropuestasRealizadas: 8 },
+            { Integrante: "Charlotte Pearson", PropuestasRealizadas: 2 },
+            { Integrante: "Arthur Thompson", PropuestasRealizadas: 7 },
+            { Integrante: "Lucy Johnson", PropuestasRealizadas: 4 },
+            { Integrante: "Daniel Carter", PropuestasRealizadas: 0 },
+            { Integrante: "Fiona Wood", PropuestasRealizadas: 9 },
+            { Integrante: "George Cole", PropuestasRealizadas: 3 },
+            { Integrante: "Emily Turner", PropuestasRealizadas: 1 },
+            { Integrante: "William Bailey", PropuestasRealizadas: 6 }
           ],
 
-          // 3) Cuentas Sin Propuestas
+          // Cuentas Sin Propuestas
           accountsWithoutProposals: [
             { Name: "Marks & Spencer", Status: "Sin Propuesta Enviada" },
             { Name: "Lloyds Bank", Status: "Sin Propuesta Enviada" },
             { Name: "GlaxoSmithKline", Status: "Consulta Pendiente" }
           ],
 
-          // 4) Empresas Sin Asignar
+          // Empresas Sin Asignar
           unassignedCompanies: [
             { Name: "BP", Comments: "Tiene correos entrantes, no asignado" },
             { Name: "EasyJet", Comments: "Posible nuevo cliente potencial" }
           ],
 
-          // 5) Resumen de Cuentas
+          // Resumen de Cuentas
           accountSummary: [
             {
               AccountName: "Tesco",
@@ -323,50 +348,56 @@
               Summary: "Sin actividad reciente",
               SuggestedNextStep: "Ofrecer nuevas tarifas promocionales"
             }
+          ],
+
+          // Contestabilidad de Correos (global)
+          emailResponseStats: {
+            responded: 150,
+            notResponded: 50
+          },
+
+          // Emails pendientes de respuesta
+          pendingEmails: [
+            { subject: "Solicitud de Tarifa Preferencial", from: "Empresa X", daysWaiting: 5 },
+            { subject: "Duda sobre Facturación", from: "Cliente Y", daysWaiting: 2 },
+            { subject: "Revisión de Contrato", from: "Proveedor Z", daysWaiting: 7 }
           ]
         };
       },
       mounted() {
-        //----------------------------------------------------------------------
-        // Ajuste de color global para ejes y leyendas
-        //----------------------------------------------------------------------
+        // Configuración general de escalas y colores
         const commonScales = {
           x: {
-            stacked: false, // Se ajustará según el gráfico
+            stacked: false, 
             beginAtZero: true,
             ticks: {
-              color: "#E2E8F0"  // Color claro y agradable para el texto de eje X
+              color: "#E2E8F0"
             }
           },
           y: {
-            stacked: false,  // Se ajustará según el gráfico
+            stacked: false,
             beginAtZero: true,
             ticks: {
-              color: "#E2E8F0"  // Color claro y agradable para el texto de eje Y
+              color: "#E2E8F0"
             }
           }
         };
 
-        //----------------------------------------------------------------------
-        // Distribución de Correos: Donut (Servicio vs Gestión) + Barras Apiladas
-        //----------------------------------------------------------------------
         const colorBlue = "#0379E8";
         const colorGray = "#6C778C";
 
-        // A) Gráfico Donut: total Servicio vs Gestión (todos los usuarios)
+        // A) Distribución de Correos (Donut global: Servicio vs Gestión)
         const totalServicing = 120;
         const totalMgmt = 80;
         new Chart(document.getElementById("servicingDistributionUserDonut"), {
           type: "doughnut",
           data: {
-            labels: ["Servicio","Gestión de Cuentas"],
-            datasets: [
-              {
-                label: "Correos Totales",
-                data: [totalServicing, totalMgmt],
-                backgroundColor: [colorBlue, colorGray]
-              }
-            ]
+            labels: ["Servicio", "Gestión Cuentas"],
+            datasets: [{
+              label: "Correos Totales",
+              data: [totalServicing, totalMgmt],
+              backgroundColor: [colorBlue, colorGray]
+            }]
           },
           options: {
             responsive: true,
@@ -375,10 +406,7 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: {
-                  boxWidth: 16,
-                  color: "#E2E8F0" // Ajuste para el color de la leyenda
-                }
+                labels: { boxWidth: 16, color: "#E2E8F0" }
               },
               tooltip: {
                 callbacks: {
@@ -395,27 +423,17 @@
           }
         });
 
-        // B) Gráfico de Barras Apiladas: por cuenta (servicio + gestión)
-        // 5 empresas reales (Reino Unido) para este ejemplo
-        const accountLabels = ["HSBC","Diageo","Burberry","Unilever","Barclays"];
+        // B) Distribución por Cuenta (Barras Apiladas)
+        const accountLabels = ["HSBC", "Diageo", "Burberry", "Unilever", "Barclays"];
         const servicingData = [25, 15, 10, 30, 40];
         const mgmtData = [10, 20, 5, 8, 12];
-
         new Chart(document.getElementById("servicingDistributionAccountBar"), {
           type: "bar",
           data: {
             labels: accountLabels,
             datasets: [
-              {
-                label: "Servicio",
-                data: servicingData,
-                backgroundColor: colorBlue
-              },
-              {
-                label: "Gestión de Cuentas",
-                data: mgmtData,
-                backgroundColor: colorGray
-              }
+              { label: "Servicio", data: servicingData, backgroundColor: colorBlue },
+              { label: "Gestión Cuentas", data: mgmtData, backgroundColor: colorGray }
             ]
           },
           options: {
@@ -425,17 +443,13 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: {
-                  boxWidth: 16,
-                  color: "#E2E8F0" // Ajuste para la leyenda
-                }
+                labels: { boxWidth: 16, color: "#E2E8F0" }
               },
               tooltip: {
                 callbacks: {
                   label: function(context) {
                     const dsLabel = context.dataset.label || "";
                     const value = context.parsed.y;
-                    // Suma de servicio + gestión para esta cuenta
                     const i = context.dataIndex;
                     const sumForAccount = servicingData[i] + mgmtData[i];
                     const percent = ((value / sumForAccount) * 100).toFixed(1) + "%";
@@ -446,27 +460,18 @@
             },
             scales: {
               ...commonScales,
-              x: {
-                ...commonScales.x,
-                stacked: true // Barras apiladas
-              },
-              y: {
-                ...commonScales.y,
-                stacked: true // Barras apiladas
-              }
+              x: { ...commonScales.x, stacked: true },
+              y: { ...commonScales.y, stacked: true }
             }
           }
         });
 
-        //----------------------------------------------------------------------
-        // Configuración base para otros gráficos (Tiempo de Gestión, etc.)
-        //----------------------------------------------------------------------
+        // Configuración base para otros gráficos
         const colorVariants = [
           "#6C778C", "#49A3F2", "#F2F2F2", "#6964BD", "#0379E8",
           "#6C778C", "#49A3F2", "#F2F2F2", "#6964BD", "#0379E8"
         ];
 
-        // Opciones generales para todos los gráficos de barras/columnas
         const chartOptions = {
           responsive: true,
           maintainAspectRatio: false,
@@ -474,69 +479,57 @@
           plugins: {
             legend: {
               position: "right",
-              labels: {
-                boxWidth: 16,
-                color: "#E2E8F0" // Ajuste color leyenda
-              }
+              labels: { boxWidth: 16, color: "#E2E8F0" }
             }
           },
-          scales: {
-            ...commonScales
-          }
+          scales: { ...commonScales }
         };
 
-        // 1) Tiempo de Gestión (por Usuario)
-        const userLabels = this.salesData.map(item => item.User);
-        // Datos de ejemplo (horas promedio)
-        const handlingTimeUserData = [5, 7, 4, 6, 8, 5, 3, 9, 2, 6];
-        new Chart(document.getElementById("handlingTimeUserChart"), {
+        // 1) Tiempo de Gestión (por Integrante)
+        const teamLabels = this.teamData.map(item => item.Integrante);
+        // EJEMPLO: Horas promedio invertidas por integrante
+        const handlingTimeTeamData = [5, 7, 4, 6, 8, 5, 3, 9, 2, 6];
+        new Chart(document.getElementById("handlingTimeTeamChart"), {
           type: "bar",
           data: {
-            labels: userLabels,
-            datasets: [
-              {
-                label: "Tiempo promedio de gestión (hrs)",
-                data: handlingTimeUserData,
-                backgroundColor: colorVariants.slice(0, userLabels.length)
-              }
-            ]
+            labels: teamLabels,
+            datasets: [{
+              label: "Tiempo promedio de gestión (hrs)",
+              data: handlingTimeTeamData,
+              backgroundColor: colorVariants.slice(0, teamLabels.length)
+            }]
           },
           options: chartOptions
         });
 
         // 2) Tiempo de Gestión (por Cuenta)
-        const accountLabels2 = ["HSBC","Diageo","Burberry","Unilever","Barclays"];
-        const handlingTimeAccountData = [10, 8, 12, 6, 9];
+        const accountLabels2 = ["HSBC", "Diageo", "Burberry", "Unilever", "Barclays"];
+        const handlingTimeAccountData = [10, 8, 12, 6, 9]; 
         new Chart(document.getElementById("handlingTimeAccountChart"), {
           type: "bar",
           data: {
             labels: accountLabels2,
-            datasets: [
-              {
-                label: "Tiempo promedio de gestión (hrs)",
-                data: handlingTimeAccountData,
-                backgroundColor: colorVariants.slice(5, 5 + accountLabels2.length)
-              }
-            ]
+            datasets: [{
+              label: "Tiempo promedio de gestión (hrs)",
+              data: handlingTimeAccountData,
+              backgroundColor: colorVariants.slice(5, 5 + accountLabels2.length)
+            }]
           },
           options: chartOptions
         });
 
-        // 3) Volumen de Actividad por Empresa
-        // Para el ejemplo, usamos las 5 empresas del Resumen de Cuentas
-        const companies = ["Tesco","Aviva","Rolls-Royce","BBC","Virgin Atlantic"];
+        // 3) Volumen de Actividad por Empresa (Pie)
+        const companies = ["Tesco", "Aviva", "Rolls-Royce", "BBC", "Virgin Atlantic"];
         const activityVolumeData = [15, 25, 10, 20, 30];
         new Chart(document.getElementById("activityVolumeChart"), {
           type: "pie",
           data: {
             labels: companies,
-            datasets: [
-              {
-                label: "Volumen de Actividad",
-                data: activityVolumeData,
-                backgroundColor: colorVariants.slice(0, companies.length)
-              }
-            ]
+            datasets: [{
+              label: "Volumen de Actividad",
+              data: activityVolumeData,
+              backgroundColor: colorVariants.slice(0, companies.length)
+            }]
           },
           options: {
             responsive: true,
@@ -545,80 +538,69 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: {
-                  boxWidth: 16,
-                  color: "#E2E8F0" // Ajuste color leyenda
+                labels: { boxWidth: 16, color: "#E2E8F0" }
+              }
+            }
+          }
+        });
+
+        // 4) Actividad del Equipo (Reuniones + Correos)
+        const emailsTeamData = [10, 12, 9, 15, 8, 4, 6, 12, 7, 10];  
+        const meetingsTeamData = [2, 4, 3, 5, 2, 1, 0, 3, 2, 4];     
+        new Chart(document.getElementById("teamActivityChart"), {
+          type: "bar",
+          data: {
+            labels: teamLabels,
+            datasets: [
+              { label: "Correos", data: emailsTeamData, backgroundColor: "#0379E8" },
+              { label: "Reuniones", data: meetingsTeamData, backgroundColor: "#6C778C" }
+            ]
+          },
+          options: {
+            ...chartOptions,
+            scales: {
+              ...commonScales,
+              x: { ...commonScales.x, stacked: true },
+              y: { ...commonScales.y, stacked: true }
+            }
+          }
+        });
+
+        // 5) Nuevas Ventas de Producto/Tasa (Barras) -- OPTIONAL
+        // (If you have a chart for "New Product Rate," uncomment or adapt)
+
+        // 6) Contestabilidad de Correos (Donut)
+        const ctxEmailResp = document.getElementById("emailResponseChart");
+        const responded = this.emailResponseStats.responded;
+        const notResponded = this.emailResponseStats.notResponded;
+        const totalEmails = responded + notResponded;
+        new Chart(ctxEmailResp, {
+          type: "doughnut",
+          data: {
+            labels: ["Respondidos", "Sin Respuesta"],
+            datasets: [{
+              data: [responded, notResponded],
+              backgroundColor: [colorBlue, colorGray]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 0 },
+            plugins: {
+              legend: {
+                position: "right",
+                labels: { boxWidth: 16, color: "#E2E8F0" }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || "";
+                    const value = context.parsed;
+                    const percent = ((value / totalEmails) * 100).toFixed(1) + "%";
+                    return `${label}: ${value} (${percent})`;
+                  }
                 }
-              }
-            }
-            // Sin ejes en el gráfico de pastel
-          }
-        });
-
-        // 4) Actividad de Usuario (Reuniones + Correos)
-        // Datos ficticios
-        const emailsData = [10,12,9,15,8,4,6,12,7,10];
-        const meetingsData = [2,4,3,5,2,1,0,3,2,4];
-        new Chart(document.getElementById("userActivityChart"), {
-          type: "bar",
-          data: {
-            labels: userLabels,
-            datasets: [
-              {
-                label: "Correos",
-                data: emailsData,
-                backgroundColor: "#0379E8"
-              },
-              {
-                label: "Reuniones",
-                data: meetingsData,
-                backgroundColor: "#6C778C"
-              }
-            ]
-          },
-          options: {
-            ...chartOptions,
-            scales: {
-              ...commonScales,
-              x: {
-                ...commonScales.x,
-                stacked: true
-              },
-              y: {
-                ...commonScales.y,
-                stacked: true
-              }
-            }
-          }
-        });
-
-        // 5) Nuevas Ventas de Producto/Tasa - Gráfico de Barras
-        const salesUsers = this.salesData.map(item => item.User);
-        const salesValues = this.salesData.map(item => item.ProposalsMade);
-
-        new Chart(document.getElementById("newProductRateChart"), {
-          type: "bar",
-          data: {
-            labels: salesUsers,
-            datasets: [
-              {
-                label: "Propuestas",
-                data: salesValues,
-                backgroundColor: "#0379E8"
-              }
-            ]
-          },
-          options: {
-            ...chartOptions,
-            scales: {
-              ...commonScales,
-              x: {
-                ...commonScales.x,
-                stacked: false
-              },
-              y: {
-                ...commonScales.y,
-                stacked: false
               }
             }
           }
