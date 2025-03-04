@@ -30,7 +30,7 @@
   <!-- Estilos BACKGROUND-->
   <style type="text/tailwindcss">
     :root {
-      --primary-bg: #061137;
+      --primary-bg: #ffffff;
       --card-bg: #0A1F4D;
       --accent-blue: #429AEE;
       --border-color: #1E3A7B;
@@ -38,27 +38,31 @@
 
     @layer base {
       html, body {
-        @apply bg-[#061137] text-white font-inter leading-tight;
+        @apply bg-[#ffffff] text-white font-inter leading-tight;
       }
     }
 
     @layer components {
+
+      .title-gradient {
+      @apply text-4xl font-bold mb-6 text-transparent bg-clip-text bg-[#3686FF] tracking-wide;
+      }
       .metric-card {
-        @apply relative rounded-xl p-4 border-l-4 border-l-[#429AEE]
-               bg-[#0A1F4D]/90 shadow-md
+        @apply relative rounded-xl p-4 border-l-4 border-l-[#356ACC]
+               bg-[#ffffff]/90 shadow-md
                transition-all duration-300 hover:shadow-xl;
       }
 
       .gradient-text {
-        @apply bg-gradient-to-r from-white via-[#6FB6F2] to-[#429AEE] bg-clip-text text-transparent;
+        @apply text-black;
       }
 
       .section-title {
-        @apply text-xl font-semibold gradient-text mb-3;
+        @apply text-[24px] font-inter gradient-text mb-3;
       }
 
       .section-description {
-        @apply text-sm text-gray-200;
+        @apply text-sm text-black;
       }
     }
 
@@ -69,10 +73,10 @@
       margin-top: 1rem;
     }
     th, td {
-      @apply border border-[#1E3A7B]/40 p-2 text-sm;
+      @apply border border-[#356ACC]/40 p-2 text-sm text-black;
     }
     th {
-      @apply bg-[#1E3A7B]/40 font-semibold text-white;
+      @apply bg-[#3686FF] font-semibold text-white;
     }
 
     /* Contenedor de gráficos */
@@ -87,7 +91,7 @@
 <body>
   <div id="app" class="max-w-6xl mx-auto px-3 py-5">
     <!-- Título de la página -->
-    <h1 class="text-3xl font-bold gradient-text mb-4">
+    <h1 class="title-gradient">
       Reporte Semanal
     </h1>
 
@@ -116,11 +120,11 @@
       <div class="metric-card">
         <h2 class="section-title">Distribución de Correos</h2>
         <p class="section-description">
-          Análisis de la distribución de correos por tipo y cuenta.
+          Análisis de la distribución de correos por tipo y por usuario.
         </p>
         
         <!-- Distribución Global -->
-        <h3 class="text-lg font-medium text-[#6FB6F2] mt-4 mb-2">
+        <h3 class="text-lg font-medium text-[#3686FF] mt-4 mb-2">
           Distribución Global
         </h3>
         <div class="chart-container h-48">
@@ -128,82 +132,47 @@
         </div>
 
         <!-- Distribución por Cuenta -->
-        <h3 class="text-lg font-medium text-[#6FB6F2] mt-6 mb-2">
-          Distribución por Cuenta
+        <h3 class="text-lg font-medium text-[#3686FF] mt-6 mb-2">
+          Distribución Por Usuario
         </h3>
         <div class="chart-container h-48">
-          <canvas id="servicingDistributionAccountBar"></canvas>
+          <canvas id="servicingDistributionUserBar"></canvas>
         </div>
       </div>
 
-      <!-- Tiempo de Gestión (por Integrante) -->
+      <!-- ¿Se está vendiendo NDC? -->
       <div class="metric-card xl:col-span-2">
-        <h2 class="section-title">Tiempo de Gestión (por Integrante)</h2>
+        <h2 class="section-title">¿Se está vendiendo NDC?</h2>
         <p class="section-description">
-          Horas promedio dedicadas a la gestión de cuentas y servicios, por cada miembro del equipo.
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido NDC y en cuántas no.
         </p>
         <div class="chart-container">
           <canvas id="handlingTimeTeamChart"></canvas>
         </div>
       </div>
 
-      <!-- Tiempo de Gestión (por Cuenta) -->
-      <div class="metric-card">
-        <h2 class="section-title">Tiempo de Gestión (por Cuenta)</h2>
+      <!-- ¿Se está vendiendo Cabina Premium Economy? -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">¿Se está vendiendo Cabina Premium Economy?</h2>
         <p class="section-description">
-          Tiempo promedio de resolución por cada cuenta gestionada.
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Cabina Premium Economy y en cuántas no.
         </p>
         <div class="chart-container">
           <canvas id="handlingTimeAccountChart"></canvas>
         </div>
       </div>
 
-      <!-- Volumen de Actividad por Empresa -->
-      <div class="metric-card">
-        <h2 class="section-title">Volumen de Actividad por Empresa</h2>
+      <!-- ¿Se está vendiendo Corporate Bundle? -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">¿Se está vendiendo Corporate Bundle?</h2>
         <p class="section-description">
-          Gráfico de pastel que muestra la distribución del volumen de actividad (por cuenta).
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Corporate Bundle y en cuántas no.
         </p>
         <div class="chart-container">
-          <canvas id="activityVolumeChart"></canvas>
+          <canvas id="corporateBundleChart"></canvas> 
         </div>
       </div>
 
-      <!-- Cuentas Sin Propuestas -->
-      <div class="metric-card">
-        <h2 class="section-title">Cuentas Sin Propuestas</h2>
-        <p class="section-description">
-          Listado de cuentas asignadas al equipo que aún no han recibido ninguna propuesta.
-        </p>
-        <table>
-          <tr>
-            <th>Cuenta</th>
-            <th>Estado</th>
-          </tr>
-          <tr v-for="(company, idx) in accountsWithoutProposals" :key="'noProposal-'+idx">
-            <td>{{ company.Name }}</td>
-            <td>{{ company.Status }}</td>
-          </tr>
-        </table>
-      </div>
-
-      <!-- Empresas Sin Asignar -->
-      <div class="metric-card">
-        <h2 class="section-title">Empresas Sin Asignar</h2>
-        <p class="section-description">
-          Análisis de la actividad en empresas que no están asignadas a ningún miembro del equipo.
-        </p>
-        <table>
-          <tr>
-            <th>Empresa</th>
-            <th>Detalles</th>
-          </tr>
-          <tr v-for="(unassigned, idx) in unassignedCompanies" :key="'unassigned-'+idx">
-            <td>{{ unassigned.Name }}</td>
-            <td>{{ unassigned.Comments }}</td>
-          </tr>
-        </table>
-      </div>
 
       <!-- Actividad del Equipo (Reuniones + Correos) -->
       <div class="metric-card xl:col-span-2">
@@ -216,36 +185,6 @@
         </div>
       </div>
 
-      <!-- Contestabilidad de Correos (Donut) -->
-      <div class="metric-card">
-        <h2 class="section-title">Contestabilidad de Correos</h2>
-        <p class="section-description">
-          Proporción de correos que han recibido respuesta vs. los que siguen sin contestar.
-        </p>
-        <div class="chart-container">
-          <canvas id="emailResponseChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Emails Pendientes de Respuesta -->
-      <div class="metric-card">
-        <h2 class="section-title">Emails Pendientes de Respuesta</h2>
-        <p class="section-description">
-          Listado de correos que llevan días en espera de respuesta.
-        </p>
-        <table>
-          <tr>
-            <th>Asunto</th>
-            <th>Remitente</th>
-            <th>Días en Espera</th>
-          </tr>
-          <tr v-for="(mail, idx) in pendingEmails" :key="'pending-'+idx">
-            <td>{{ mail.subject }}</td>
-            <td>{{ mail.from }}</td>
-            <td>{{ mail.daysWaiting }}</td>
-          </tr>
-        </table>
-      </div>
 
       <!-- Resumen de Cuentas & Próximos Pasos (Ancho Completo) -->
       <div class="metric-card xl:col-span-2">
@@ -303,19 +242,6 @@
             { Integrante: "William Bailey", PropuestasRealizadas: 6 }
           ],
 
-          // Cuentas Sin Propuestas
-          accountsWithoutProposals: [
-            { Name: "Marks & Spencer", Status: "Sin Propuesta Enviada" },
-            { Name: "Lloyds Bank", Status: "Sin Propuesta Enviada" },
-            { Name: "GlaxoSmithKline", Status: "Consulta Pendiente" }
-          ],
-
-          // Empresas Sin Asignar
-          unassignedCompanies: [
-            { Name: "BP", Comments: "Tiene correos entrantes, no asignado" },
-            { Name: "EasyJet", Comments: "Posible nuevo cliente potencial" }
-          ],
-
           // Resumen de Cuentas
           accountSummary: [
             {
@@ -348,19 +274,6 @@
               Summary: "Sin actividad reciente",
               SuggestedNextStep: "Ofrecer nuevas tarifas promocionales"
             }
-          ],
-
-          // Contestabilidad de Correos (global)
-          emailResponseStats: {
-            responded: 150,
-            notResponded: 50
-          },
-
-          // Emails pendientes de respuesta
-          pendingEmails: [
-            { subject: "Solicitud de Tarifa Preferencial", from: "Empresa X", daysWaiting: 5 },
-            { subject: "Duda sobre Facturación", from: "Cliente Y", daysWaiting: 2 },
-            { subject: "Revisión de Contrato", from: "Proveedor Z", daysWaiting: 7 }
           ]
         };
       },
@@ -371,20 +284,20 @@
             stacked: false, 
             beginAtZero: true,
             ticks: {
-              color: "#E2E8F0"
+              color: "#000000"
             }
           },
           y: {
             stacked: false,
             beginAtZero: true,
             ticks: {
-              color: "#E2E8F0"
+              color: "#000000"
             }
           }
         };
 
         const colorBlue = "#0379E8";
-        const colorGray = "#6C778C";
+        const colorGray = "#E6E6E6";
 
         // A) Distribución de Correos (Donut global: Servicio vs Gestión)
         const totalServicing = 120;
@@ -406,7 +319,7 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: { boxWidth: 16, color: "#E2E8F0" }
+                labels: { boxWidth: 16, color: "#000000" }
               },
               tooltip: {
                 callbacks: {
@@ -424,10 +337,10 @@
         });
 
         // B) Distribución por Cuenta (Barras Apiladas)
-        const accountLabels = ["HSBC", "Diageo", "Burberry", "Unilever", "Barclays"];
+        const accountLabels = ["Harriet Stone", "Lucy Johnson", "George Cole", "James Robinson", "William Bailey"];
         const servicingData = [25, 15, 10, 30, 40];
         const mgmtData = [10, 20, 5, 8, 12];
-        new Chart(document.getElementById("servicingDistributionAccountBar"), {
+        new Chart(document.getElementById("servicingDistributionUserBar"), {
           type: "bar",
           data: {
             labels: accountLabels,
@@ -443,7 +356,7 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: { boxWidth: 16, color: "#E2E8F0" }
+                labels: { boxWidth: 16, color: "#000000" }
               },
               tooltip: {
                 callbacks: {
@@ -466,10 +379,9 @@
           }
         });
 
-        // Configuración base para otros gráficos
         const colorVariants = [
-          "#6C778C", "#49A3F2", "#F2F2F2", "#6964BD", "#0379E8",
-          "#6C778C", "#49A3F2", "#F2F2F2", "#6964BD", "#0379E8"
+          "#2936CC", "#80B2FF", "#B3B3B3", "#1991FF", "#204499",
+          "#2936CC", "#80B2FF", "#B3B3B3", "#1991FF", "#204499"
         ];
 
         const chartOptions = {
@@ -479,57 +391,32 @@
           plugins: {
             legend: {
               position: "right",
-              labels: { boxWidth: 16, color: "#E2E8F0" }
+              labels: { boxWidth: 16, color: "#000000" }
             }
           },
           scales: { ...commonScales }
         };
 
-        // 1) Tiempo de Gestión (por Integrante)
+        // 1) Se está vendiendo NDC? (Gráfico de barras stacked por usuario con % de sí/no)
         const teamLabels = this.teamData.map(item => item.Integrante);
-        // EJEMPLO: Horas promedio invertidas por integrante
-        const handlingTimeTeamData = [5, 7, 4, 6, 8, 5, 3, 9, 2, 6];
+
+        // Datos de ejemplo: cantidad de respuestas "Sí" y "No" por usuario
+        const ndcYesData = [3, 5, 2, 4, 6, 3, 1, 7, 1, 4];
+        const ndcNoData = [2, 2, 2, 2, 2, 2, 2, 2, 1, 2];
+
+        // Calcular el total de respuestas por usuario para obtener el porcentaje
+        const totalResponses = ndcYesData.map((yes, index) => yes + ndcNoData[index]);
+        const ndcYesPercentage = ndcYesData.map((yes, index) => (yes / totalResponses[index]) * 100);
+        const ndcNoPercentage = ndcNoData.map((no, index) => (no / totalResponses[index]) * 100);
+
         new Chart(document.getElementById("handlingTimeTeamChart"), {
           type: "bar",
           data: {
             labels: teamLabels,
-            datasets: [{
-              label: "Tiempo promedio de gestión (hrs)",
-              data: handlingTimeTeamData,
-              backgroundColor: colorVariants.slice(0, teamLabels.length)
-            }]
-          },
-          options: chartOptions
-        });
-
-        // 2) Tiempo de Gestión (por Cuenta)
-        const accountLabels2 = ["HSBC", "Diageo", "Burberry", "Unilever", "Barclays"];
-        const handlingTimeAccountData = [10, 8, 12, 6, 9]; 
-        new Chart(document.getElementById("handlingTimeAccountChart"), {
-          type: "bar",
-          data: {
-            labels: accountLabels2,
-            datasets: [{
-              label: "Tiempo promedio de gestión (hrs)",
-              data: handlingTimeAccountData,
-              backgroundColor: colorVariants.slice(5, 5 + accountLabels2.length)
-            }]
-          },
-          options: chartOptions
-        });
-
-        // 3) Volumen de Actividad por Empresa (Pie)
-        const companies = ["Tesco", "Aviva", "Rolls-Royce", "BBC", "Virgin Atlantic"];
-        const activityVolumeData = [15, 25, 10, 20, 30];
-        new Chart(document.getElementById("activityVolumeChart"), {
-          type: "pie",
-          data: {
-            labels: companies,
-            datasets: [{
-              label: "Volumen de Actividad",
-              data: activityVolumeData,
-              backgroundColor: colorVariants.slice(0, companies.length)
-            }]
+            datasets: [
+              { label: "% Sí", data: ndcYesPercentage, backgroundColor: "#0379E8" },
+              { label: "% No", data: ndcNoPercentage, backgroundColor: "#E6E6E6" }
+            ]
           },
           options: {
             responsive: true,
@@ -538,11 +425,93 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: { boxWidth: 16, color: "#E2E8F0" }
+                labels: { boxWidth: 16, color: "#000000" }
               }
+            },
+            scales: {
+              x: { stacked: true, ticks: { color: "#000000" } },
+              y: { stacked: true, beginAtZero: true, ticks: { color: "#000000", callback: value => `${value}%` } }
             }
           }
         });
+
+        // 2) Se está vendiendo Cabina Premium Economy? (Gráfico de barras stacked por usuario con % de sí/no)
+          const accountLabels2 = ["Harriet Stone", "James Robinson", "Charlotte Pearson", "Arthur Thompson", "Lucy Johnson","Daniel Carter", "Fiona Wood", "George Cole", "Emily Turner", "William Bailey"];
+
+          // Datos de ejemplo: cantidad de respuestas "Sí" y "No" por cuenta
+          const premiumYesData = [6, 4, 8, 3, 5, 4, 3, 4, 7, 8];
+          const premiumNoData = [4, 6, 2, 7, 5, 6, 7, 6, 3, 2];
+
+          // Calcular el total de respuestas por cuenta para obtener el porcentaje
+          const totalPremiumResponses = premiumYesData.map((yes, index) => yes + premiumNoData[index]);
+          const premiumYesPercentage = premiumYesData.map((yes, index) => (yes / totalPremiumResponses[index]) * 100);
+          const premiumNoPercentage = premiumNoData.map((no, index) => (no / totalPremiumResponses[index]) * 100);
+
+          new Chart(document.getElementById("handlingTimeAccountChart"), {
+            type: "bar",
+            data: {
+              labels: accountLabels2,
+              datasets: [
+                { label: "% Sí", data: premiumYesPercentage, backgroundColor: "#0379E8" },
+                { label: "% No", data: premiumNoPercentage, backgroundColor: "#E6E6E6" }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: { padding: 0 },
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: { boxWidth: 16, color: "#000000" }
+                }
+              },
+              scales: {
+                x: { stacked: true, ticks: { color: "#000000" } },
+                y: { stacked: true, beginAtZero: true, ticks: { color: "#000000", callback: value => `${value}%` } }
+              }
+            }
+          });
+
+        // 3) Se está vendiendo Corporate Bundle? (Gráfico de barras stacked por usuario con % de sí/no)
+
+        // Datos de ejemplo: cantidad de respuestas "Sí" y "No" por usuario
+        const corporateYesData = [4, 6, 3, 5, 7, 4, 2, 8, 2, 5];
+        const corporateNoData = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+        // Calcular el total de respuestas por usuario para obtener el porcentaje
+        const totalCorporateResponses = corporateYesData.map((yes, index) => yes + corporateNoData[index]);
+        const corporateYesPercentage = corporateYesData.map((yes, index) => (yes / totalCorporateResponses[index]) * 100);
+        const corporateNoPercentage = corporateNoData.map((no, index) => (no / totalCorporateResponses[index]) * 100);
+
+        new Chart(document.getElementById("corporateBundleChart"), {  
+          type: "bar",
+          data: {
+            labels: teamLabels,  
+            datasets: [
+              { label: "% Sí", data: corporateYesPercentage, backgroundColor: "#0379E8" },
+              { label: "% No", data: corporateNoPercentage, backgroundColor: "#E6E6E6" }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: 0 },
+            plugins: {
+              legend: {
+                position: "right",
+                labels: { boxWidth: 16, color: "#000000" }
+              }
+            },
+            scales: {
+              x: { stacked: true, ticks: { color: "#000000" } },
+              y: { stacked: true, beginAtZero: true, ticks: { color: "#000000", callback: value => `${value}%` } }
+            }
+          }
+        });
+
+
+      
 
         // 4) Actividad del Equipo (Reuniones + Correos)
         const emailsTeamData = [10, 12, 9, 15, 8, 4, 6, 12, 7, 10];  
@@ -553,7 +522,7 @@
             labels: teamLabels,
             datasets: [
               { label: "Correos", data: emailsTeamData, backgroundColor: "#0379E8" },
-              { label: "Reuniones", data: meetingsTeamData, backgroundColor: "#6C778C" }
+              { label: "Reuniones", data: meetingsTeamData, backgroundColor: "#E6E6E6" }
             ]
           },
           options: {
@@ -566,8 +535,7 @@
           }
         });
 
-        // 5) Nuevas Ventas de Producto/Tasa (Barras) -- OPTIONAL
-        // (If you have a chart for "New Product Rate," uncomment or adapt)
+       
 
         // 6) Contestabilidad de Correos (Donut)
         const ctxEmailResp = document.getElementById("emailResponseChart");
@@ -590,7 +558,7 @@
             plugins: {
               legend: {
                 position: "right",
-                labels: { boxWidth: 16, color: "#E2E8F0" }
+                labels: { boxWidth: 16, color: "#000000" }
               },
               tooltip: {
                 callbacks: {
