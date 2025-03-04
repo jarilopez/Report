@@ -1,0 +1,579 @@
+<!-- NOTA 04/03  MEJORAR : SECCION 3 PIES, Y ULTIMA SECCION + REVISAR EL CODIGO -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte Individual: Harriet</title>
+
+  <!-- Tailwind CSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Configuración de Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'inter': ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Vue 3 vía CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- Chart.js vía CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos con Tailwind -->
+  <style type="text/tailwindcss">
+    :root {
+      --primary-bg: #ffffff;
+      --text-bg: #000000;
+      --accent-blue: #429AEE;
+      --border-color: #356ACC;
+    }
+
+    @layer base {
+      html, body {
+        @apply bg-[#ffffff] text-white font-inter leading-tight;
+      }
+    }
+
+    @layer components {
+      .title-gradient {
+        @apply text-4xl font-bold mb-6 text-transparent bg-clip-text bg-[#3686FF] tracking-wide;
+      }
+      .metric-card {
+        @apply relative rounded-xl p-4 border-l-4 border-l-[#356ACC]
+               bg-[#ffffff]/90 shadow-md
+               transition-all duration-300 hover:shadow-xl;
+      }
+      .gradient-text {
+        @apply text-black;
+      }
+      .section-title {
+        @apply text-[24px] font-inter gradient-text mb-3;
+      }
+      .section-description {
+        @apply text-sm text-black;
+      }
+    }
+
+    /* Estilos base para tablas */
+    table {
+      @apply border-collapse w-full mt-4;
+    }
+    th, td {
+      @apply border border-[#356ACC]/40 p-2 text-sm text-black;
+    }
+    th {
+      @apply bg-[#3686FF] font-normal text-white;
+    }
+
+    /* Contenedor de gráficos */
+    .chart-container {
+      @apply w-full h-56 relative mt-2;
+    }
+    canvas {
+      @apply w-full h-full;
+    }
+  </style>
+</head>
+<body>
+<div id="app" class="max-w-6xl mx-auto px-3 py-5">
+
+  <!-- TÍTULO PRINCIPAL -->
+  <h1 class="title-gradient">Reporte Semanal: Harriet Stone </h1>
+
+  <!-- FILA 1: "Temas Relevantes" + "Pie de % de Actividad por Cuenta" -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+
+    <!-- A) Temas Relevantes -->
+    <div class="metric-card">
+      <h2 class="section-title">Temas Relevantes</h2>
+      <p class="section-description">
+        Identificación de los temas más discutidos en los correos.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Tema</th>
+            <th>Menciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(tema, i) in temasRelevantes" :key="'tema-'+i">
+            <td>{{ tema.nombreTema }}</td>
+            <td>{{ tema.menciones }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B) % de Actividad por Cuenta (Pie con 5 cuentas + 'Otros') -->
+    <div class="metric-card">
+      <h2 class="section-title">Actividad</h2>
+      <p class="section-description">
+        Análisis de la distribución del volumen de actividad (por cuenta).
+      </p>
+      <div class="chart-container">
+        <canvas id="graficoDistribucionPorcentual"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FILA 2: DISTRIBUCIÓN DE CORREOS  -->
+  <div class="metric-card mb-4">
+    <h2 class="section-title">Distribución de Correos</h2>
+    <p class="section-description">
+        Análisis de la distribución de correos por tipo y por usuario.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+
+      <!-- B1) Distribución Global (Gráfico de pastel) -->
+      <div>
+        <h3 class="text-lg font-medium text-[#3686FF] mb-2">Distribución Global</h3>
+        <div class="chart-container">
+          <canvas id="graficoCorreosGlobalHarriet"></canvas>
+        </div>
+      </div>
+
+      <!-- B2) Distribución por Compañía (Barras apiladas) -->
+      <div>
+        <h3 class="text-lg font-medium text-[#3686FF] mb-2">Distribución por Compañía</h3>
+        <div class="chart-container">
+          <canvas id="graficoBarrasCompañias"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FILA 3: ACTIVIDAD DE HARRIET POR COMPAÑÍA (Barras apiladas) -->
+  <div class="metric-card mb-4">
+    <h2 class="section-title">Tipo de Actividad</h2>
+    <p class="section-description">
+        Reuniones y Correos: Gráfico de barras que muestra el número de interacciones con cada cuenta.
+    </p>
+    <div class="chart-container">
+      <canvas id="graficoActividadHarriet"></canvas>
+    </div>
+  </div>
+
+  <!-- FILA 4: SECCIÓN VENTAS TIPO PARA (NDC, Premium, Corporate) -->
+  <div class="metric-card mb-4">
+    <h2 class="section-title">Visión de Ventas Por Tipo De Producto</h2>
+    <p class="section-description">
+      Distribución del rendimiento de los productos de cada producto en relación con las ventas totales.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+      <!-- NDC -->
+      <div>
+        <h3 class="text-sm font-medium text-[#3686FF]">NDC</h3>
+        <div class="chart-container">
+          <canvas id="graficoNdc"></canvas>
+        </div>
+      </div>
+      <!-- Premium -->
+      <div>
+        <h3 class="text-sm font-medium text-[#3686FF]">Cabina Premium Economy</h3>
+        <div class="chart-container">
+          <canvas id="graficoPremium"></canvas>
+        </div>
+      </div>
+      <!-- Corporate -->
+      <div>
+        <h3 class="text-sm font-medium text-[#3686FF]">Corporate Bundle</h3>
+        <div class="chart-container">
+          <canvas id="graficoCorporate"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA 5: TABLA - LISTA DE COMPAÑÍAS & PRÓXIMOS PASOS -->
+  <div class="metric-card mb-4">
+    <h2 class="section-title">Lista de Compañías & Próximos Pasos</h2>
+    <p class="section-description">
+      Resumen de cada cuenta, con su siguiente paso sugerido.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de la Cuenta</th>
+          <th>Resumen</th>
+          <th>Próximo Paso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(cuenta, i) in listadoCuentas" :key="'cuenta-'+i">
+          <td>{{ cuenta.nombreCuenta }}</td>
+          <td>{{ cuenta.resumen }}</td>
+          <td>{{ cuenta.siguientePaso }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FILA 6: TABLA DE COMPAÑÍAS SIN NDC/PREMIUM/CORPORATE -->
+  <div class="metric-card">
+    <h2 class="section-title">Compañías con Faltantes</h2>
+    <p class="section-description">
+      Cuentas que aún no han adquirido NDC, Premium o Corporate.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre de la Cuenta</th>
+          <th>Faltante(s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(faltante, idx) in cuentasSinVentas" :key="'faltante-'+idx">
+          <td>{{ faltante.nombreCuenta }}</td>
+          <td>{{ faltante.faltantes.join(', ') }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const aplicacion = Vue.createApp({
+  data() {
+    return {
+      /* A) Temas Relevantes */
+      temasRelevantes: [
+        { nombreTema: "Precios", menciones: 12 },
+        { nombreTema: "Problemas Técnicos", menciones: 5 },
+        { nombreTema: "Integraciones", menciones: 4 },
+        { nombreTema: "Capacitación", menciones: 3 },
+        { nombreTema: "Renovaciones", menciones: 2 },
+      ],
+
+      /* B) Distribución de Correos de Harriet */
+      distribucionCorreosGlobal: [
+        { etiqueta: "Servicio", cantidad: 25 },
+        { etiqueta: "Gestión Cuentas", cantidad: 10 }
+      ],
+      distribucionPorCompañia: {
+        etiquetas: ["Tesco", "Aviva", "Rolls-Royce", "BBC", "Virgin Atlantic", "Otros"],
+        datosServicio: [6, 3, 4, 5, 3, 4],
+        datosGestion: [2, 3, 1, 0, 2, 2]
+      },
+
+      /* Actividad Harriet (fila 3) */
+      actividadHarriet: {
+        etiquetas: ["Tesco", "Aviva", "Rolls-Royce", "BBC", "Virgin Atlantic", "Otros"],
+        datosCorreos: [8, 6, 5, 5, 5, 6],
+        datosReuniones: [2, 1, 1, 0, 1, 1]
+      },
+
+      /* E) Datos de Venta (NDC / Premium / Corporate) */
+      datosVentaNdc: [
+        { nombreCuenta: "Tesco", vendido: true },
+        { nombreCuenta: "Aviva", vendido: false },
+        { nombreCuenta: "Rolls-Royce", vendido: true },
+        { nombreCuenta: "BBC", vendido: false },
+        { nombreCuenta: "Virgin Atlantic", vendido: true },
+        { nombreCuenta: "Otros", vendido: false }
+      ],
+      datosVentaPremium: [
+        { nombreCuenta: "Tesco", vendido: false },
+        { nombreCuenta: "Aviva", vendido: true },
+        { nombreCuenta: "Rolls-Royce", vendido: false },
+        { nombreCuenta: "BBC", vendido: false },
+        { nombreCuenta: "Virgin Atlantic", vendido: true },
+        { nombreCuenta: "Otros", vendido: false }
+      ],
+      datosVentaCorporate: [
+        { nombreCuenta: "Tesco", vendido: false },
+        { nombreCuenta: "Aviva", vendido: false },
+        { nombreCuenta: "Rolls-Royce", vendido: false },
+        { nombreCuenta: "BBC", vendido: false },
+        { nombreCuenta: "Virgin Atlantic", vendido: true },
+        { nombreCuenta: "Otros", vendido: false }
+      ],
+
+      /* F) Tabla de Cuentas */
+      listadoCuentas: [
+        {
+          nombreCuenta: "Tesco",
+          resumen: "Cuenta estable, interesada en ofertas de producto A",
+          siguientePaso: "Enviar cotización detallada"
+        },
+        {
+          nombreCuenta: "Aviva",
+          resumen: "Solicitan información adicional sobre soporte técnico",
+          siguientePaso: "Agendar reunión con equipo de soporte"
+        },
+        {
+          nombreCuenta: "Rolls-Royce",
+          resumen: "Posible renovación de contrato premium",
+          siguientePaso: "Coordinar visita presencial"
+        },
+        {
+          nombreCuenta: "BBC",
+          resumen: "Pendiente evaluación de costes",
+          siguientePaso: "Esperar aprobación interna"
+        },
+        {
+          nombreCuenta: "Virgin Atlantic",
+          resumen: "Considera migrar a plan Corporate",
+          siguientePaso: "Elaborar propuesta corporativa"
+        },
+        {
+          nombreCuenta: "Otros",
+          resumen: "Cuentas menores en seguimiento",
+          siguientePaso: "Mantener contacto periódico"
+        }
+      ],
+
+      /* G) Cuentas con faltantes */
+      cuentasSinVentas: []
+    };
+  },
+  mounted() {
+    // Generar tabla de faltantes
+    this.generarCuentasSinVentas();
+    // Generar los gráficos
+    this.generarGraficos();
+  },
+  methods: {
+    generarCuentasSinVentas() {
+      const status = {};
+
+      const registrar = (arr, categoria) => {
+        arr.forEach(item => {
+          if (!status[item.nombreCuenta]) {
+            status[item.nombreCuenta] = {
+              nombreCuenta: item.nombreCuenta,
+              ndc: true,
+              premium: true,
+              corporate: true
+            };
+          }
+          status[item.nombreCuenta][categoria] = item.vendido;
+        });
+      };
+
+      registrar(this.datosVentaNdc, "ndc");
+      registrar(this.datosVentaPremium, "premium");
+      registrar(this.datosVentaCorporate, "corporate");
+
+      this.cuentasSinVentas = Object.values(status)
+        .map(entry => {
+          const faltantes = [];
+          if (!entry.ndc) faltantes.push("NDC");
+          if (!entry.premium) faltantes.push("Premium");
+          if (!entry.corporate) faltantes.push("Corporate");
+          return {
+            nombreCuenta: entry.nombreCuenta,
+            faltantes
+          };
+        })
+        .filter(item => item.faltantes.length > 0);
+    },
+
+    generarGraficos() {
+      // 1) Pie: % de Actividad por Cuenta
+      const totalesPorCuenta = this.actividadHarriet.etiquetas.map((etq, i) =>
+        this.actividadHarriet.datosCorreos[i] + this.actividadHarriet.datosReuniones[i]
+      );
+      new Chart(document.getElementById("graficoDistribucionPorcentual"), {
+        type: "doughnut",
+        data: {
+          labels: this.actividadHarriet.etiquetas,
+          datasets: [{
+            data: totalesPorCuenta,
+            backgroundColor: ["#3686FF","#2936CC","#1126EA","#A6C9FF","#CCD0FF","#040A4D"]
+          }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { 
+              padding: {
+                top: 20,
+                bottom: 20
+              }
+            },
+            plugins: {
+              legend: {
+                position: "right",
+                labels: {
+                  boxWidth: 16,
+                  color: "#000000",
+                }
+              },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const etiqueta = context.label || "";
+                  const valor = context.raw;
+                  const total = totalesPorCuenta.reduce((acc, val) => acc + val, 0);
+                  const porc = total > 0
+                    ? Math.round((valor / total) * 100) + "%"
+                    : "0%";
+                  return `${etiqueta}: ${valor} (${porc})`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // 2) Pastel: Distribución Global (Servicio vs Gestión)
+      new Chart(document.getElementById("graficoCorreosGlobalHarriet"), {
+        type: "doughnut",
+        data: {
+          labels: this.distribucionCorreosGlobal.map(item => item.etiqueta),
+          datasets: [{
+            data: this.distribucionCorreosGlobal.map(item => item.cantidad),
+            backgroundColor: ["#0379E8", "#E6E6E6"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 16, color: "#000000" }
+            }
+          }
+        }
+      });
+
+      // 3) Barras apiladas: Distribución por Compañía (Servicio vs Gestión)
+      new Chart(document.getElementById("graficoBarrasCompañias"), {
+        type: "bar",
+        data: {
+          labels: this.distribucionPorCompañia.etiquetas,
+          datasets: [
+            {
+              label: "Servicio",
+              data: this.distribucionPorCompañia.datosServicio,
+              backgroundColor: "#0379E8"
+            },
+            {
+              label: "Gestión",
+              data: this.distribucionPorCompañia.datosGestion,
+              backgroundColor: "#E6E6E6"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: "#000000" }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { color: "#000000" }
+            }
+          },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 16, color: "#000000" }
+            }
+          }
+        }
+      });
+
+      // 4) Barras apiladas: Actividad Harriet (Correos + Reuniones)
+      new Chart(document.getElementById("graficoActividadHarriet"), {
+        type: "bar",
+        data: {
+          labels: this.actividadHarriet.etiquetas,
+          datasets: [
+            {
+              label: "Correos",
+              data: this.actividadHarriet.datosCorreos,
+              backgroundColor: "#0379E8"
+            },
+            {
+              label: "Reuniones",
+              data: this.actividadHarriet.datosReuniones,
+              backgroundColor: "#E6E6E6"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { color: "#000000" }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { color: "#000000" }
+            }
+          },
+          plugins: {
+            legend: {
+              position: "right",
+              labels: { boxWidth: 16, color: "#000000" }
+            }
+          }
+        }
+      });
+
+      // 5) Quesitos de NDC, Premium y Corporate (todos con leyenda abajo)
+      this.crearQuesito("graficoNdc", "NDC", this.datosVentaNdc);
+      this.crearQuesito("graficoPremium", "Premium", this.datosVentaPremium);
+      this.crearQuesito("graficoCorporate", "Corporate", this.datosVentaCorporate);
+    },
+
+    crearQuesito(canvasId, etiqueta, arregloVentas) {
+      const totalSi = arregloVentas.filter(item => item.vendido).length;
+      const totalNo = arregloVentas.length - totalSi;
+
+      new Chart(document.getElementById(canvasId), {
+        type: "doughnut",
+        data: {
+          labels: [`Sí (${etiqueta})`, `No (${etiqueta})`],
+          datasets: [{
+            data: [totalSi, totalNo],
+            backgroundColor: ["#0379E8", "#E6E6E6"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { 
+            padding: {
+              top: 10,
+              bottom: 10
+            }
+          },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 16, color: "#000000" }
+            }
+          }
+        }
+      });
+    }
+  }
+});
+
+aplicacion.mount("#app");
+</script>
+</body>
+</html>
