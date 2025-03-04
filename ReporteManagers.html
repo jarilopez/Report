@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reporte Semanal</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Configuración de Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'inter': ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Vue 3 via CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos con @apply, @layer, etc.... NOTA: Uso type="text/tailwindcss" -->
+  <style type="text/tailwindcss">
+    :root {
+      --primary-bg: #ffffff;
+      --text-bg: #000000;
+      --accent-blue: #429AEE;
+      --border-color: #356ACC;
+    }
+
+    @layer base {
+      html, body {
+        @apply bg-[#ffffff] text-white font-inter leading-tight;
+      }
+    }
+
+    @layer components {
+      .title-gradient {
+        @apply text-4xl font-bold mb-6 text-transparent bg-clip-text bg-[#3686FF] tracking-wide;
+      }
+      .metric-card {
+        @apply relative rounded-xl p-4 border-l-4 border-l-[#356ACC]
+               bg-[#ffffff]/90 shadow-md
+               transition-all duration-300 hover:shadow-xl;
+      }
+      .gradient-text {
+        @apply text-black;
+      }
+      .section-title {
+        @apply text-[24px] font-inter gradient-text mb-3;
+      }
+      .section-description {
+        @apply text-sm text-black;
+      }
+    }
+
+    /* Estilos base para tablas */
+    table {
+      @apply border-collapse w-full mt-4;
+    }
+    th, td {
+      @apply border border-[#356ACC]/40 p-2 text-sm text-black;
+    }
+    th {
+      @apply bg-[#3686FF] font-normal text-white;
+    }
+
+    /* Contenedor de gráficos */
+    .chart-container {
+      @apply w-full h-48 relative mt-2;
+    }
+    canvas {
+      @apply w-full h-full;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="max-w-6xl mx-auto px-3 py-5">
+    <!-- Título de la página -->
+    <h1 class="title-gradient">Reporte Semanal</h1>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+      <!-- A) Temas Relevantes -->
+      <div class="metric-card">
+        <h2 class="section-title">Temas Relevantes</h2>
+        <p class="section-description">
+          Identificación de los temas más discutidos en correos a lo largo de la semana.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Tema</th>
+              <th>Menciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(topic, idx) in hotTopics" :key="'topic-'+idx">
+              <td>{{ topic.Topic }}</td>
+              <td>{{ topic.Mentions }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- B) Distribución de Correos -->
+      <div class="metric-card">
+        <h2 class="section-title">Distribución de Correos</h2>
+        <p class="section-description">
+          Análisis de la distribución de correos por tipo y por usuario.
+        </p>
+        
+        <!-- B1) Distribución Global (Donut) -->
+        <h3 class="text-lg font-medium text-[#3686FF] mt-4 mb-2">Distribución Global</h3>
+        <div class="chart-container">
+          <canvas id="servicingDistributionUserDonut"></canvas>
+        </div>
+
+        <!-- B2) Distribución por Usuario (Barras Apiladas) -->
+        <h3 class="text-lg font-medium text-[#3686FF] mt-6 mb-2">Distribución Por Usuario</h3>
+        <div class="chart-container">
+          <canvas id="servicingDistributionUserBar"></canvas>
+        </div>
+      </div>
+
+      <!-- C) ¿Se está vendiendo NDC? -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">¿Se está vendiendo NDC?</h2>
+        <p class="section-description">
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido NDC y en cuántas no.
+        </p>
+        <div class="chart-container">
+          <canvas id="handlingTimeTeamChart"></canvas>
+        </div>
+      </div>
+
+      <!-- D) ¿Se está vendiendo Cabina Premium Economy? -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">¿Se está vendiendo Cabina Premium Economy?</h2>
+        <p class="section-description">
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Cabina Premium Economy y en cuántas no.
+        </p>
+        <div class="chart-container">
+          <canvas id="handlingTimeAccountChart"></canvas>
+        </div>
+      </div>
+
+      <!-- E) ¿Se está vendiendo Corporate Bundle? -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">¿Se está vendiendo Corporate Bundle?</h2>
+        <p class="section-description">
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Corporate Bundle y en cuántas no.
+        </p>
+        <div class="chart-container">
+          <canvas id="corporateBundleChart"></canvas>
+        </div>
+      </div>
+
+      <!-- F) Actividad del Equipo (Reuniones + Correos) -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">Actividad del Equipo</h2>
+        <p class="section-description">
+          Reuniones y Correos: Gráfico de barras que muestra el número de interacciones por integrante.
+        </p>
+        <div class="chart-container">
+          <canvas id="teamActivityChart"></canvas>
+        </div>
+      </div>
+
+      <!-- G) Resumen de Cuentas & Próximos Pasos -->
+      <div class="metric-card xl:col-span-2">
+        <h2 class="section-title">Resumen de Cuentas & Próximos Pasos</h2>
+        <p class="section-description">
+          Lista de cuentas con una línea de resumen y un próximo paso sugerido.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre de la Cuenta</th>
+              <th>Responsable</th>
+              <th>Resumen</th>
+              <th>Próximo Paso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(acc, idx) in accountSummary" :key="'acc-'+idx">
+              <td>{{ acc.AccountName }}</td>
+              <td>{{ acc.Owner }}</td>
+              <td>{{ acc.Summary }}</td>
+              <td>{{ acc.SuggestedNextStep }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          // A) Temas Relevantes
+          hotTopics: [
+            { Topic: "Precios", Mentions: 30 },
+            { Topic: "Problemas Técnicos", Mentions: 25 },
+            { Topic: "Características del Producto", Mentions: 20 },
+            { Topic: "Facturación", Mentions: 18 },
+            { Topic: "Implementación", Mentions: 12 },
+            { Topic: "Soporte al Cliente", Mentions: 15 },
+            { Topic: "Renovaciones", Mentions: 22 },
+            { Topic: "Integraciones", Mentions: 16 },
+            { Topic: "Capacitación", Mentions: 14 }
+          ],
+
+          // B) Distribución de Correos
+          servicingDistribution: [
+            { Label: "Servicio", Amount: 120 },
+            { Label: "Gestión Cuentas", Amount: 80 },
+          ],
+          emailDistribution: {
+            byUser: {
+              labels: ["Harriet", "Lucy", "George", "James", "William"],
+              servicingData: [25, 15, 10, 30, 40],
+              mgmtData: [10, 20, 5, 8, 12]
+            }
+          },
+
+          // C, D, E) Datos para NDC, Premium Economy y Corporate
+          handlingTime: {
+            byUser: {
+              labels: [
+                "Harriet Stone", "James Robinson", "Charlotte Pearson", "Arthur Thompson", 
+                "Lucy Johnson", "Daniel Carter", "Fiona Wood", "George Cole", 
+                "Emily Turner", "William Bailey"
+              ],
+              // NDC
+              ndcYesData: [3, 5, 2, 4, 6, 3, 1, 7, 1, 4],
+              ndcNoData: [2, 2, 2, 2, 2, 2, 2, 2, 1, 2],
+
+              // Premium
+              premiumYesData: [6, 40, 8, 3, 5, 4, 3, 4, 7, 8],
+              premiumNoData: [4, 30, 2, 7, 5, 6, 7, 6, 3, 2],
+
+              // Corporate
+              corporateYesData: [4, 6, 3, 5, 7, 4, 2, 8, 2, 5],
+              corporateNoData: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            }
+          },
+
+          // F) Actividad del Equipo
+          userActivity: {
+            labels: [
+              "Harriet Stone", "James Robinson", "Charlotte Pearson", "Arthur Thompson", 
+              "Lucy Johnson", "Daniel Carter", "Fiona Wood", "George Cole", 
+              "Emily Turner", "William Bailey"
+            ],
+            emailsData: [10, 12, 9, 15, 8, 4, 6, 12, 7, 10],
+            meetingsData: [2, 4, 3, 5, 2, 1, 0, 3, 2, 4]
+          },
+
+          // G) Resumen de Cuentas & Próximos Pasos
+          accountSummary: [
+            {
+              AccountName: "Tesco",
+              Owner: "Harriet Stone",
+              Summary: "Requiere seguimiento tras la última conferencia",
+              SuggestedNextStep: "Agendar demostración detallada"
+            },
+            {
+              AccountName: "Aviva",
+              Owner: "James Robinson",
+              Summary: "Muestran interés en productos recientes",
+              SuggestedNextStep: "Enviar propuesta completa"
+            },
+            {
+              AccountName: "Rolls-Royce",
+              Owner: "Charlotte Pearson",
+              Summary: "Problema resuelto, en espera de respuesta",
+              SuggestedNextStep: "Programar reunión de cierre"
+            },
+            {
+              AccountName: "BBC",
+              Owner: "Arthur Thompson",
+              Summary: "Pendiente renovación de contrato",
+              SuggestedNextStep: "Preparar documentos de renovación"
+            },
+            {
+              AccountName: "Virgin Atlantic",
+              Owner: "Lucy Johnson",
+              Summary: "Sin actividad reciente",
+              SuggestedNextStep: "Ofrecer nuevas tarifas promocionales"
+            }
+          ]
+        };
+      },
+      mounted() {
+        this.generateCharts();
+      },
+      methods: {
+        generateCharts() {
+          // 1) Donut: Distribución Global (Servicio vs Gestión)
+          new Chart(document.getElementById("servicingDistributionUserDonut"), {
+            type: "doughnut",
+            data: {
+              labels: this.servicingDistribution.map(item => item.Label),
+              datasets: [{
+                data: this.servicingDistribution.map(item => item.Amount),
+                backgroundColor: [ "#0379E8", "#E6E6E6" ]
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: {
+                padding: 5
+              },
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: { boxWidth: 16, color: "#000000" }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => {
+                      // Muestra valor y porcentaje sin decimales
+                      const label = context.label || "";
+                      const value = context.raw;
+                      const total = this.servicingDistribution.reduce((sum, item) => sum + item.Amount, 0);
+                      const percent = total > 0 ? Math.round((value / total) * 100) + "%" : "0%";
+                      return `${label}: ${value} (${percent})`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+
+          // 2) Barras apiladas: Distribución Por Usuario (Servicio vs Gestión)
+          new Chart(document.getElementById("servicingDistributionUserBar"), {
+            type: "bar",
+            data: {
+              labels: this.emailDistribution.byUser.labels,
+              datasets: [
+                {
+                  label: "Servicio",
+                  data: this.emailDistribution.byUser.servicingData,
+                  backgroundColor: "#0379E8"
+                },
+                {
+                  label: "Gestión",
+                  data: this.emailDistribution.byUser.mgmtData,
+                  backgroundColor: "#E6E6E6"
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  stacked: true,
+                  ticks: { color: "#000000" }
+                },
+                y: {
+                  stacked: true,
+                  beginAtZero: true,
+                  ticks: { color: "#000000" }
+                }
+              },
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: { boxWidth: 16, color: "#000000" }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      // Definimos sumForAccount y hacemos el redondeo
+                      const dsLabel = context.dataset.label || "";
+                      const value = context.raw;
+                      const i = context.dataIndex;
+
+                      // sumForAccount: total de correos (Servicio+Gestión) para ese usuario
+                      const sumForAccount =
+                        (this.emailDistribution.byUser.servicingData[i] || 0) +
+                        (this.emailDistribution.byUser.mgmtData[i] || 0);
+
+                      const percent = sumForAccount > 0
+                        ? Math.round((value / sumForAccount) * 100) + "%"
+                        : "0%";
+
+                      return `${dsLabel}: ${value} (${percent})`;
+                    }.bind(this) // Importante .bind(this) para acceder a this.emailDistribution
+                  }
+                }
+              }
+            }
+          });
+
+          // 3) ¿Se está vendiendo NDC? (Barras 100% apiladas)
+          {
+            const totalNDC = this.handlingTime.byUser.ndcYesData.map((yes, i) =>
+              yes + this.handlingTime.byUser.ndcNoData[i]
+            );
+            
+            const ndcYesPercentage = this.handlingTime.byUser.ndcYesData.map((yes, i) =>
+              totalNDC[i] ? (yes / totalNDC[i]) * 100 : 0
+            );
+            const ndcNoPercentage = this.handlingTime.byUser.ndcNoData.map((no, i) =>
+              totalNDC[i] ? (no / totalNDC[i]) * 100 : 0
+            );
+
+            new Chart(document.getElementById("handlingTimeTeamChart"), {
+              type: "bar",
+              data: {
+                labels: this.handlingTime.byUser.labels,
+                datasets: [
+                  {
+                    label: "% Sí",
+                    data: ndcYesPercentage,
+                    backgroundColor: "#0379E8"
+                  },
+                  {
+                    label: "% No",
+                    data: ndcNoPercentage,
+                    backgroundColor: "#E6E6E6"
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    stacked: true,
+                    ticks: { color: "#000000" }
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    max: 100, 
+                    ticks: {
+                      color: "#000000",
+                      callback: function (value) {
+                        // Eje Y sin decimales
+                        return Math.round(value) + "%"; 
+                      }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    position: "right",
+                    labels: { boxWidth: 16, color: "#000000" }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      // Tooltip con porcentajes enteros
+                      label: function(context) {
+                        const rawValue = context.parsed.y;
+                        return context.dataset.label + ": " + Math.round(rawValue) + "%";
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
+
+          // 4) ¿Se está vendiendo Cabina Premium Economy? (Barras 100% apiladas)
+          {
+            const totalPremium = this.handlingTime.byUser.premiumYesData.map((yes, i) =>
+              yes + this.handlingTime.byUser.premiumNoData[i]
+            );
+            const premiumYesPercentage = this.handlingTime.byUser.premiumYesData.map((yes, i) =>
+              totalPremium[i] ? (yes / totalPremium[i]) * 100 : 0
+            );
+            const premiumNoPercentage = this.handlingTime.byUser.premiumNoData.map((no, i) =>
+              totalPremium[i] ? (no / totalPremium[i]) * 100 : 0
+            );
+
+            new Chart(document.getElementById("handlingTimeAccountChart"), {
+              type: "bar",
+              data: {
+                labels: this.handlingTime.byUser.labels,
+                datasets: [
+                  {
+                    label: "% Sí",
+                    data: premiumYesPercentage,
+                    backgroundColor: "#0379E8"
+                  },
+                  {
+                    label: "% No",
+                    data: premiumNoPercentage,
+                    backgroundColor: "#E6E6E6"
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    stacked: true,
+                    ticks: { color: "#000000" }
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                      color: "#000000",
+                      callback: function (value) {
+                        return Math.round(value) + "%";
+                      }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    position: "right",
+                    labels: { boxWidth: 16, color: "#000000" }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const rawValue = context.parsed.y;
+                        return context.dataset.label + ": " + Math.round(rawValue) + "%";
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
+
+          // 5) ¿Se está vendiendo Corporate Bundle? (Barras 100% apiladas)
+          {
+            const totalCorporate = this.handlingTime.byUser.corporateYesData.map((yes, i) =>
+              yes + this.handlingTime.byUser.corporateNoData[i]
+            );
+            const corporateYesPercentage = this.handlingTime.byUser.corporateYesData.map((yes, i) =>
+              totalCorporate[i] ? (yes / totalCorporate[i]) * 100 : 0
+            );
+            const corporateNoPercentage = this.handlingTime.byUser.corporateNoData.map((no, i) =>
+              totalCorporate[i] ? (no / totalCorporate[i]) * 100 : 0
+            );
+
+            new Chart(document.getElementById("corporateBundleChart"), {
+              type: "bar",
+              data: {
+                labels: this.handlingTime.byUser.labels,
+                datasets: [
+                  {
+                    label: "% Sí",
+                    data: corporateYesPercentage,
+                    backgroundColor: "#0379E8"
+                  },
+                  {
+                    label: "% No",
+                    data: corporateNoPercentage,
+                    backgroundColor: "#E6E6E6"
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    stacked: true,
+                    ticks: { color: "#000000" }
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                      color: "#000000",
+                      callback: function (value) {
+                        return Math.round(value) + "%";
+                      }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    position: "right",
+                    labels: { boxWidth: 16, color: "#000000" }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      // ESTE callback controla la etiqueta en el tooltip:
+                      label: function(context) {
+                        // El valor numérico de la barra es context.parsed.y
+                        const rawValue = context.parsed.y; 
+                        // Redondeamos y añadimos '%'
+                        return context.dataset.label + ": " + Math.round(rawValue) + "%";
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
+
+          // 6) Actividad del Equipo (Reuniones + Correos) - Barras apiladas
+          new Chart(document.getElementById("teamActivityChart"), {
+            type: "bar",
+            data: {
+              labels: this.userActivity.labels,
+              datasets: [
+                { label: "Correos", data: this.userActivity.emailsData, backgroundColor: "#0379E8" },
+                { label: "Reuniones", data: this.userActivity.meetingsData, backgroundColor: "#E6E6E6" }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: { stacked: true, ticks: { color: "#000000" } },
+                y: { stacked: true, beginAtZero: true, ticks: { color: "#000000" } }
+              },
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: { boxWidth: 16, color: "#000000" }
+                }
+              }
+            }
+          });
+        }
+      }
+    });
+
+    app.mount("#app");
+  </script>
+</body>
+</html>
