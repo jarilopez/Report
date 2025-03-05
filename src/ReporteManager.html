@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reporte Semanal</title>
 
   <!-- Tailwind CSS via CDN -->
@@ -41,7 +42,7 @@
         @apply bg-[#ffffff] text-white font-inter leading-tight;
       }
     }
-
+    
     @layer components {
       .title-gradient {
         @apply text-4xl font-bold mb-6 text-transparent bg-clip-text bg-[#3686FF] tracking-wide;
@@ -82,6 +83,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="app" class="max-w-6xl mx-auto px-3 py-5">
 
@@ -118,7 +120,7 @@
         <p class="section-description">
           Análisis de la distribución de correos por tipo y por usuario.
         </p>
-        
+
         <!-- B1) Distribución Global (Gráfico en forma de dona) -->
         <h3 class="text-lg font-medium text-[#3686FF] mt-4 mb-2">Distribución Global</h3>
         <div class="chart-container">
@@ -136,7 +138,8 @@
       <div class="metric-card xl:col-span-2">
         <h2 class="section-title">¿Se está vendiendo NDC?</h2>
         <p class="section-description">
-          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido NDC y en cuántas no.
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido NDC y en cuántas
+          no.
         </p>
         <div class="chart-container">
           <canvas id="graficoNdc"></canvas>
@@ -147,7 +150,8 @@
       <div class="metric-card xl:col-span-2">
         <h2 class="section-title">¿Se está vendiendo Cabina Premium Economy?</h2>
         <p class="section-description">
-          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Cabina Premium Economy y en cuántas no.
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Cabina Premium
+          Economy y en cuántas no.
         </p>
         <div class="chart-container">
           <canvas id="graficoPremium"></canvas>
@@ -158,7 +162,8 @@
       <div class="metric-card xl:col-span-2">
         <h2 class="section-title">¿Se está vendiendo Corporate Bundle?</h2>
         <p class="section-description">
-          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Corporate Bundle y en cuántas no.
+          Porcentaje del total de ventas de cada miembro del equipo, indicando en cuántas se ha vendido Corporate Bundle
+          y en cuántas no.
         </p>
         <div class="chart-container">
           <canvas id="graficoCorporate"></canvas>
@@ -227,7 +232,7 @@
             { etiqueta: "Servicio", cantidad: 120 },
             { etiqueta: "Gestión Cuentas", cantidad: 80 },
           ],
-          distribucionCorreos: {
+          distribucionCorreosUsuario: {
             porUsuario: {
               etiquetas: ["Harriet", "Lucy", "George", "James", "William"],
               datosServicio: [25, 15, 10, 30, 40],
@@ -307,9 +312,14 @@
         this.generarGraficos();
       },
       methods: {
-
-        /** Función que genera todos los gráficos*/
+        // Función que genera todos los gráficos
         generarGraficos() {
+
+          // Definición de colores
+          const colorBase = "#0379E8";
+          const colorComplementario = "#E6E6E6";
+          const colorTexto = "#000000";
+
           // 1) Gráfico tipo donut: Distribución Global (Servicio vs Gestión)
           new Chart(document.getElementById("graficoCorreosGlobal"), {
             type: "doughnut",
@@ -317,7 +327,7 @@
               labels: this.distribucionCorreosGlobal.map(item => item.etiqueta),
               datasets: [{
                 data: this.distribucionCorreosGlobal.map(item => item.cantidad),
-                backgroundColor: ["#0379E8", "#E6E6E6"]
+                backgroundColor: [colorBase, colorComplementario]
               }]
             },
             options: {
@@ -329,7 +339,7 @@
               plugins: {
                 legend: {
                   position: "right",
-                  labels: { boxWidth: 16, color: "#000000" }
+                  labels: { boxWidth: 16, color: colorTexto }
                 },
                 tooltip: {
                   callbacks: {
@@ -354,17 +364,17 @@
           new Chart(document.getElementById("graficoCorreosPorUsuario"), {
             type: "bar",
             data: {
-              labels: this.distribucionCorreos.porUsuario.etiquetas,
+              labels: this.distribucionCorreosUsuario.porUsuario.etiquetas,
               datasets: [
                 {
                   label: "Servicio",
-                  data: this.distribucionCorreos.porUsuario.datosServicio,
-                  backgroundColor: "#0379E8"
+                  data: this.distribucionCorreosUsuario.porUsuario.datosServicio,
+                  backgroundColor: colorBase
                 },
                 {
                   label: "Gestión",
-                  data: this.distribucionCorreos.porUsuario.datosGestion,
-                  backgroundColor: "#E6E6E6"
+                  data: this.distribucionCorreosUsuario.porUsuario.datosGestion,
+                  backgroundColor: colorComplementario
                 }
               ]
             },
@@ -374,37 +384,37 @@
               scales: {
                 x: {
                   stacked: true,
-                  ticks: { color: "#000000" }
+                  ticks: { color: colorTexto }
                 },
                 y: {
                   stacked: true,
                   beginAtZero: true,
-                  ticks: { color: "#000000" }
+                  ticks: { color: colorTexto }
                 }
               },
               plugins: {
                 legend: {
                   position: "right",
-                  labels: { boxWidth: 16, color: "#000000" }
+                  labels: { boxWidth: 16, color: colorTexto }
                 },
                 tooltip: {
                   callbacks: {
-                    label: function(context) {
+                    label: function (context) {
                       // Calcula el total de correos (Servicio + Gestión) 
                       const etiquetaDatasets = context.dataset.label || "";
                       const valor = context.raw;
                       const indice = context.dataIndex;
 
                       const totalUsuario =
-                        (this.distribucionCorreos.porUsuario.datosServicio[indice] || 0) +
-                        (this.distribucionCorreos.porUsuario.datosGestion[indice] || 0);
+                        (this.distribucionCorreosUsuario.porUsuario.datosServicio[indice] || 0) +
+                        (this.distribucionCorreosUsuario.porUsuario.datosGestion[indice] || 0);
 
                       const porcentaje = totalUsuario > 0
                         ? Math.round((valor / totalUsuario) * 100) + "%"
                         : "0%";
 
                       return `${etiquetaDatasets}: ${valor} (${porcentaje})`;
-                    }.bind(this) 
+                    }.bind(this)
                   }
                 }
               }
@@ -432,12 +442,12 @@
                   {
                     label: "% Sí",
                     data: ndcPorcentajeSi,
-                    backgroundColor: "#0379E8"
+                    backgroundColor: colorBase
                   },
                   {
                     label: "% No",
                     data: ndcPorcentajeNo,
-                    backgroundColor: "#E6E6E6"
+                    backgroundColor: colorComplementario
                   }
                 ]
               },
@@ -447,14 +457,14 @@
                 scales: {
                   x: {
                     stacked: true,
-                    ticks: { color: "#000000" }
+                    ticks: { color: colorTexto }
                   },
                   y: {
                     stacked: true,
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                      color: "#000000",
+                      color: colorTexto,
                       callback: function (valorEje) {
                         return Math.round(valorEje) + "%";
                       }
@@ -464,11 +474,11 @@
                 plugins: {
                   legend: {
                     position: "right",
-                    labels: { boxWidth: 16, color: "#000000" }
+                    labels: { boxWidth: 16, color: colorTexto }
                   },
                   tooltip: {
                     callbacks: {
-                      label: function(context) {
+                      label: function (context) {
                         const valorCrudo = context.parsed.y;
                         return context.dataset.label + ": " + Math.round(valorCrudo) + "%";
                       }
@@ -499,12 +509,12 @@
                   {
                     label: "% Sí",
                     data: premiumPorcentajeSi,
-                    backgroundColor: "#0379E8"
+                    backgroundColor: colorBase
                   },
                   {
                     label: "% No",
                     data: premiumPorcentajeNo,
-                    backgroundColor: "#E6E6E6"
+                    backgroundColor: colorComplementario
                   }
                 ]
               },
@@ -514,14 +524,14 @@
                 scales: {
                   x: {
                     stacked: true,
-                    ticks: { color: "#000000" }
+                    ticks: { color: colorTexto }
                   },
                   y: {
                     stacked: true,
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                      color: "#000000",
+                      color: colorTexto,
                       callback: function (valorEje) {
                         return Math.round(valorEje) + "%";
                       }
@@ -531,11 +541,11 @@
                 plugins: {
                   legend: {
                     position: "right",
-                    labels: { boxWidth: 16, color: "#000000" }
+                    labels: { boxWidth: 16, color: colorTexto }
                   },
                   tooltip: {
                     callbacks: {
-                      label: function(context) {
+                      label: function (context) {
                         const valorCrudo = context.parsed.y;
                         return context.dataset.label + ": " + Math.round(valorCrudo) + "%";
                       }
@@ -566,12 +576,12 @@
                   {
                     label: "% Sí",
                     data: corporatePorcentajeSi,
-                    backgroundColor: "#0379E8"
+                    backgroundColor: colorBase
                   },
                   {
                     label: "% No",
                     data: corporatePorcentajeNo,
-                    backgroundColor: "#E6E6E6"
+                    backgroundColor: colorComplementario
                   }
                 ]
               },
@@ -581,14 +591,14 @@
                 scales: {
                   x: {
                     stacked: true,
-                    ticks: { color: "#000000" }
+                    ticks: { color: colorTexto }
                   },
                   y: {
                     stacked: true,
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                      color: "#000000",
+                      color: colorTexto,
                       callback: function (valorEje) {
                         return Math.round(valorEje) + "%";
                       }
@@ -598,11 +608,11 @@
                 plugins: {
                   legend: {
                     position: "right",
-                    labels: { boxWidth: 16, color: "#000000" }
+                    labels: { boxWidth: 16, color: colorTexto }
                   },
                   tooltip: {
                     callbacks: {
-                      label: function(context) {
+                      label: function (context) {
                         const valorCrudo = context.parsed.y;
                         return context.dataset.label + ": " + Math.round(valorCrudo) + "%";
                       }
@@ -622,12 +632,12 @@
                 {
                   label: "Correos",
                   data: this.actividadEquipo.datosCorreos,
-                  backgroundColor: "#0379E8"
+                  backgroundColor: colorBase
                 },
                 {
                   label: "Reuniones",
                   data: this.actividadEquipo.datosReuniones,
-                  backgroundColor: "#E6E6E6"
+                  backgroundColor: colorComplementario
                 }
               ]
             },
@@ -637,18 +647,18 @@
               scales: {
                 x: {
                   stacked: true,
-                  ticks: { color: "#000000" }
+                  ticks: { color: colorTexto }
                 },
                 y: {
                   stacked: true,
                   beginAtZero: true,
-                  ticks: { color: "#000000" }
+                  ticks: { color: colorTexto }
                 }
               },
               plugins: {
                 legend: {
                   position: "right",
-                  labels: { boxWidth: 16, color: "#000000" }
+                  labels: { boxWidth: 16, color: colorTexto }
                 }
               }
             }
@@ -660,4 +670,5 @@
     aplicacion.mount("#app");
   </script>
 </body>
+
 </html>
